@@ -2,7 +2,7 @@ import {
   Entity,
   Column,
   ManyToOne,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   JoinColumn,
   RelationId,
 } from 'typeorm';
@@ -10,7 +10,7 @@ import { Film } from './films.entity';
 
 @Entity()
 export class Schedule {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
