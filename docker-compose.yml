@@ -5,6 +5,7 @@ services:
 
   nginx:
     build: ./nginx
+    image: ghcr.io/mstitovgit/nginx:latest
     networks:
     - dev
     ports:
@@ -18,6 +19,7 @@ services:
 
   frontend:
     build: ./frontend
+    image: ghcr.io/mstitovgit/frontend:latest
     volumes:
       - frontend-dist:/app/dist
     networks:
@@ -26,6 +28,7 @@ services:
 
   backend:
     build: ./backend
+    image: ghcr.io/mstitovgit/backend:latest
     restart: unless-stopped
     env_file: ./backend/.env
     environment:
