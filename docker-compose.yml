@@ -31,9 +31,6 @@ services:
     image: ghcr.io/mstitovgit/backend:latest
     restart: unless-stopped
     env_file: ./backend/.env
-    environment:
-      # В контейнере localhost — не postgres; хост совпадает с именем сервиса в Compose
-      DATABASE_URL: postgres://filmnest:filmnest@postgres:5432/film_nest
     networks:
     - dev
     ports:
