@@ -15,9 +15,9 @@ import {
   PostOrderResponseDTO,
   OrderResultDTO,
 } from 'src/order/dto/order.dto';
+import { randomUUID } from 'crypto';
 import { Repository } from 'typeorm';
 import { Film } from './films.entity';
-import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class FilmsTypeOrmRepository {
@@ -96,7 +96,7 @@ export class FilmsTypeOrmRepository {
 
       session.taken.push(seatStr);
       results.push({
-        id: uuid(),
+        id: randomUUID(),
         film: t.film,
         session: t.session,
         daytime: t.daytime,

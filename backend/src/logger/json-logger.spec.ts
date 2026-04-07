@@ -13,7 +13,7 @@ describe('JsonLogger', () => {
     const params = ['optional param 1', 'optional param 2'];
     logger.log(message, ...params);
     expect(console.log).toHaveBeenCalledWith(
-      JSON.stringify({ level: 'log', message, params }),
+      JSON.stringify({ level: 'log', message, optionalParams: params }),
     );
   });
 });

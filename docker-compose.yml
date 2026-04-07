@@ -6,11 +6,11 @@ services:
   nginx:
     build: ./nginx
     image: ghcr.io/mstitovgit/nginx:latest
+    restart: unless-stopped
     networks:
     - dev
     ports:
       - '80:80'
-      - '443:443'
     depends_on:
       - frontend
       - backend
