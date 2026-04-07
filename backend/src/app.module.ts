@@ -32,7 +32,7 @@ import { LoggerModule } from './logger/logger.provider';
     TypeOrmModule.forFeature([Film, Schedule]),
     ServeStaticModule.forRoot({
       rootPath: path.join(__dirname, '..', 'public'),
-      serveRoot: '/public',
+      serveRoot: '/',
     }),
   ],
   controllers: [FilmsController, OrderController],
