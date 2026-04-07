@@ -11,10 +11,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Schedule } from './repository/schedule.entity';
 import { Film } from './repository/films.entity';
 import { FilmsTypeOrmRepository } from './repository/films.repository';
+import { LoggerModule } from './logger/logger.provider';
 
 @Module({
   imports: [
     AppConfigModule,
+    LoggerModule,
     TypeOrmModule.forRootAsync({
       imports: [AppConfigModule],
       inject: ['CONFIG'],
@@ -30,7 +32,7 @@ import { FilmsTypeOrmRepository } from './repository/films.repository';
     TypeOrmModule.forFeature([Film, Schedule]),
     ServeStaticModule.forRoot({
       rootPath: path.join(__dirname, '..', 'public'),
-      serveRoot: '/public',
+      serveRoot: '/',
     }),
   ],
   controllers: [FilmsController, OrderController],

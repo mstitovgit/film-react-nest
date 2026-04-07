@@ -1,0 +1,70 @@
+networks:
+  dev:
+
+services:
+
+  nginx:
+    build: ./nginx
+    image: ghcr.io/mstitovgit/nginx:latest
+    restart: unless-stopped
+    networks:
+    - dev
+    ports:
+      - '80:80'
+    depends_on:
+      - frontend
+      - backend
+    volumes:
+      - frontend-dist:/usr/share/nginx/html
+
+  frontend:
+    build: ./frontend
+    image: ghcr.io/mstitovgit/frontend:latest
+    volumes:
+      - frontend-dist:/app/dist
+    networks:
+    - dev
+
+
+  backend:
+    build: ./backend
+    image: ghcr.io/mstitovgit/backend:latest
+    restart: unless-stopped
+    env_file: ./backend/.env
+    networks:
+    - dev
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    healthcheck:
+      test: "wget -nv -t1 --spider 'http://localhost:3000/'"
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+  postgres:
+    image: "postgres:16"
+    restart: unless-stopped
+    env_file: ./backend/.env
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    networks:
+    - dev
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: unless-stopped
+    env_file: ./backend/.env
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+    - dev
+
+volumes:
+  frontend-dist:
+  pg-data:
+  pgadmin_data:

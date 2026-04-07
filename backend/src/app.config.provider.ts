@@ -8,8 +8,13 @@ export interface AppConfigDatabase {
   password: string;
 }
 
+export interface AppConfigLogger {
+  type: 'dev' | 'json' | 'tskv';
+}
+
 export interface AppConfig {
   database: AppConfigDatabase;
+  logger: AppConfigLogger;
 }
 
 export const configProvider = {
@@ -19,9 +24,12 @@ export const configProvider = {
     database: {
       driver: configService.get<string>('DATABASE_DRIVER'),
       url: configService.get<string>('DATABASE_URL'),
-      username: configService.get<string>('DATABASE_USERNAME'),
-      password: configService.get<string>('DATABASE_PASSWORD'),
+      username: configService.get<string>('POSTGRES_USER'),
+      password: configService.get<string>('POSTGRES_PASSWORD'),
     },
+    logger: {
+      type: configService.get<string>('LOGGER_TYPE'),
+    } as AppConfigLogger,
   }),
 };
 
