@@ -4,7 +4,11 @@ on:
   push:
     branches:
       - review-3
-      workflow_dispatch:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   build-and-push:
