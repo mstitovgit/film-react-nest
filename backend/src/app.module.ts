@@ -2,35 +2,38 @@ import { Module } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import * as path from 'node:path';
 
-import { AppConfig } from './app.config.provider';
-import { MongooseModule } from '@nestjs/mongoose';
-import { Film, FilmSchema } from './repository/films.schema';
-import { FilmsMongoDbRepository } from './repository/films.repository';
 import { FilmsService } from './films/films.service';
 import { OrderService } from './order/order.service';
-import { AppConfigModule } from './app.config.provider';
+import { AppConfig, AppConfigModule } from './app.config.provider';
 import { FilmsController } from './films/films.controller';
 import { OrderController } from './order/order.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Schedule } from './repository/schedule.entity';
+import { Film } from './repository/films.entity';
+import { FilmsTypeOrmRepository } from './repository/films.repository';
 
 @Module({
   imports: [
     AppConfigModule,
-    MongooseModule.forRootAsync({
+    TypeOrmModule.forRootAsync({
       imports: [AppConfigModule],
       inject: ['CONFIG'],
       useFactory: (config: AppConfig) => ({
-        uri: config.database.url as string,
+        type: config.database.driver as 'postgres',
+        url: config.database.url,
+        username: config.database.username,
+        password: config.database.password,
+        entities: [Film, Schedule],
+        synchronize: true,
       }),
     }),
-
-    MongooseModule.forFeature([{ name: Film.name, schema: FilmSchema }]),
-
+    TypeOrmModule.forFeature([Film, Schedule]),
     ServeStaticModule.forRoot({
       rootPath: path.join(__dirname, '..', 'public'),
       serveRoot: '/public',
     }),
   ],
   controllers: [FilmsController, OrderController],
-  providers: [FilmsMongoDbRepository, FilmsService, OrderService],
+  providers: [FilmsTypeOrmRepository, FilmsService, OrderService],
 })
 export class AppModule {}

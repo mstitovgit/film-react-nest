@@ -1,34 +1,33 @@
 import {
-  BadRequestException,
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
-import { Film } from './films.schema';
-import { v4 as uuid } from 'uuid';
+import { InjectRepository } from '@nestjs/typeorm';
 import {
-  GetFilmsDTO,
   GetFilmsResponseDTO,
-  GetScheduleDTO,
+  GetFilmsDTO,
   GetScheduleResponseDTO,
+  GetScheduleDTO,
 } from 'src/films/dto/films.dto';
 import {
   ITicket,
-  OrderResultDTO,
   PostOrderResponseDTO,
+  OrderResultDTO,
 } from 'src/order/dto/order.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { FilmDocument } from './films.schema';
-import { Model } from 'mongoose';
+import { Repository } from 'typeorm';
+import { Film } from './films.entity';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
-export class FilmsMongoDbRepository {
+export class FilmsTypeOrmRepository {
   constructor(
-    @InjectModel(Film.name)
-    private filmModel: Model<FilmDocument>,
+    @InjectRepository(Film)
+    private filmRepository: Repository<Film>,
   ) {}
 
   async findAll(): Promise<GetFilmsResponseDTO> {
-    const items = await this.filmModel.find({}, '-schedule').exec();
+    const items = await this.filmRepository.find();
     const mapped: GetFilmsDTO[] = items.map((f) => ({
       id: f.id,
       rating: f.rating,
@@ -44,9 +43,11 @@ export class FilmsMongoDbRepository {
   }
 
   async findSchedule(filmId: string): Promise<GetScheduleResponseDTO> {
-    const film = await this.filmModel
-      .findOne({ id: filmId }, 'schedule')
-      .exec();
+    const film = await this.filmRepository.findOne({
+      where: { id: filmId },
+      relations: ['schedule'],
+      order: { schedule: { daytime: 'ASC', hall: 'ASC' } },
+    });
     if (!film) return { total: 0, items: [] };
 
     const items: GetScheduleDTO[] = film.schedule.map((s) => ({
@@ -71,7 +72,10 @@ export class FilmsMongoDbRepository {
     const sessionId = tickets[0].session;
     const results: OrderResultDTO[] = [];
 
-    const film = await this.filmModel.findOne({ id: filmId });
+    const film = await this.filmRepository.findOne({
+      where: { id: filmId },
+      relations: ['schedule'],
+    });
     if (!film) {
       throw new NotFoundException({ error: 'Film not found' });
     }
@@ -102,7 +106,7 @@ export class FilmsMongoDbRepository {
       });
     }
 
-    await film.save();
+    await this.filmRepository.save(film);
 
     return {
       total: results.length,
